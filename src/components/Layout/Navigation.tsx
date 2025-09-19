@@ -4,7 +4,7 @@ import { PlayCircle, Users, User, Home, Info, LogIn } from "lucide-react";
 
 const Navigation = () => {
   const location = useLocation();
-  
+
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
     { name: "من نحن", path: "/about", icon: Info },
@@ -21,9 +21,11 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 space-x-reverse">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <PlayCircle className="w-5 h-5 text-white" />
+              <img src="/icon.png" alt="logo" className="w-6 h-6" />
             </div>
-            <span className="text-xl font-bold text-foreground">فيديو تيم</span>
+            <span className="text-xl flex items-center justify-center font-bold text-foreground">
+              واعي | Wise
+            </span>
           </Link>
 
           {/* Navigation Links */}
