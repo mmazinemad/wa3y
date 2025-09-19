@@ -16,14 +16,14 @@
     --card: 0 0% 100%;
     --card-foreground: 220 25% 15%;
     
-    /* Brand Primary - Deep Blue */
-    --primary: 220 90% 56%;
+    /* Brand Primary - Green */
+    --primary: 158 92% 30%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 90% 50%;
+    --primary-hover: 158 92% 25%;
     
-    /* Secondary - Rich Purple */
-    --secondary: 270 60% 45%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary - Gold */
+    --secondary: 48 80% 67%;
+    --secondary-foreground: 158 92% 15%;
     
     /* Accent - Gold */
     --accent: 45 85% 60%;
@@ -36,7 +36,7 @@
     /* Interactive Elements */
     --border: 220 15% 85%;
     --input: 220 15% 90%;
-    --ring: 220 90% 56%;
+    --ring: 158 92% 30%;
     
     /* Status Colors */
     --destructive: 0 75% 60%;
@@ -45,12 +45,12 @@
     --success-foreground: 0 0% 100%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 90% 56%), hsl(270 60% 45%));
-    --gradient-accent: linear-gradient(135deg, hsl(45 85% 60%), hsl(35 85% 55%));
-    --gradient-hero: linear-gradient(135deg, hsl(220 90% 56%) 0%, hsl(270 60% 45%) 50%, hsl(45 85% 60%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(158 92% 30%), hsl(48 80% 67%));
+    --gradient-accent: linear-gradient(135deg, hsl(48 80% 67%), hsl(45 85% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(158 92% 30%) 0%, hsl(48 80% 67%) 50%, hsl(45 85% 60%) 100%);
     
     /* Shadows */
-    --shadow-primary: 0 10px 30px -10px hsl(220 90% 56% / 0.3);
+    --shadow-primary: 0 10px 30px -10px hsl(158 92% 30% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(220 15% 15% / 0.1);
     --shadow-video: 0 8px 32px -8px hsl(220 15% 15% / 0.15);
     
