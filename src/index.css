@@ -1,42 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Arabic RTL Video Platform Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    /* Main Brand Colors */
+    --background: 220 15% 95%;
+    --foreground: 220 25% 15%;
+    
+    /* Cards & Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    --card-foreground: 220 25% 15%;
+    
+    /* Brand Primary - Deep Blue */
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 220 90% 50%;
+    
+    /* Secondary - Rich Purple */
+    --secondary: 270 60% 45%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent - Gold */
+    --accent: 45 85% 60%;
+    --accent-foreground: 220 25% 15%;
+    
+    /* Muted States */
+    --muted: 220 15% 88%;
+    --muted-foreground: 220 15% 45%;
+    
+    /* Interactive Elements */
+    --border: 220 15% 85%;
+    --input: 220 15% 90%;
+    --ring: 220 90% 56%;
+    
+    /* Status Colors */
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 140 70% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 90% 56%), hsl(270 60% 45%));
+    --gradient-accent: linear-gradient(135deg, hsl(45 85% 60%), hsl(35 85% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 90% 56%) 0%, hsl(270 60% 45%) 50%, hsl(45 85% 60%) 100%);
+    
+    /* Shadows */
+    --shadow-primary: 0 10px 30px -10px hsl(220 90% 56% / 0.3);
+    --shadow-card: 0 4px 20px -4px hsl(220 15% 15% / 0.1);
+    --shadow-video: 0 8px 32px -8px hsl(220 15% 15% / 0.15);
+    
+    /* Border Radius */
+    --radius: 12px;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +119,118 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-cairo;
+    direction: rtl;
+  }
+  
+  /* RTL Support */
+  [dir="rtl"] {
+    text-align: right;
+  }
+  
+  [dir="ltr"] {
+    text-align: left;
+  }
+  
+  /* Arabic Typography */
+  .font-cairo {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Custom Utility Classes */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .shadow-primary {
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-video {
+    box-shadow: var(--shadow-video);
+  }
+  
+  /* Animation Classes */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+}
+
+@layer components {
+  /* Video Card Component */
+  .video-card {
+    @apply bg-card rounded-xl overflow-hidden shadow-card hover:shadow-video transition-all duration-300;
+  }
+  
+  .video-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  /* Team Member Card */
+  .team-card {
+    @apply bg-card rounded-2xl p-6 shadow-card hover:shadow-primary transition-all duration-300 border border-border;
+  }
+  
+  .team-card:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+  
+  /* Embed Container */
+  .embed-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+  }
+  
+  .embed-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
   }
 }
