@@ -1,15 +1,23 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, Info, Users, Video, LogIn, User as UserIcon, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, Users, User, Home, Info, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
     { name: "من نحن", path: "/about", icon: Info },
     { name: "الفريق", path: "/team", icon: Users },
-    { name: "الفيديوهات", path: "/videos", icon: PlayCircle },
+    { name: "الفيديوهات", path: "/videos", icon: Video },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -46,17 +54,29 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Auth Buttons */}
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login">
-                <LogIn className="w-4 h-4 ml-2" />
-                تسجيل الدخول
-              </Link>
-            </Button>
-            <Button size="sm" className="gradient-primary" asChild>
-              <Link to="/dashboard">لوحة التحكم</Link>
-            </Button>
+          {/* Login/User Button */}
+          <div className="flex items-center gap-2">
+            {isAuthenticated ? (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/dashboard">
+                    <UserIcon className="w-4 h-4 ml-2" />
+                    لوحة التحكم
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 ml-2" />
+                  تسجيل الخروج
+                </Button>
+              </>
+            ) : (
+              <Button variant="default" className="gradient-primary" asChild>
+                <Link to="/login">
+                  <LogIn className="w-4 h-4 ml-2" />
+                  تسجيل الدخول
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

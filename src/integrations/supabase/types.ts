@@ -14,7 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: number
+          user_id: string
+          video_id: number
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: number
+          user_id: string
+          video_id: number
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: number
+          user_id?: string
+          video_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          created_at: string | null
+          id: number
+          user_id: string
+          video_id: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          user_id: string
+          video_id: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          user_id?: string
+          video_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          id: string
+          image: string | null
+          name: string | null
+          role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          image?: string | null
+          name?: string | null
+          role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image?: string | null
+          name?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          created_at: string | null
+          id: number
+          storage_path: string | null
+          title: string
+          type: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          storage_path?: string | null
+          title: string
+          type: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          storage_path?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

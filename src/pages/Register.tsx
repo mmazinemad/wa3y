@@ -5,15 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
-  const { signIn, isAuthenticated, loading } = useAuth();
+  const { signUp, isAuthenticated, loading } = useAuth();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,15 +27,27 @@ const Login = () => {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    const { error: authError } = await signIn(email, password);
+    if (password !== confirmPassword) {
+      setError("كلمات المرور غير متطابقة");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      setIsLoading(false);
+      return;
+    }
+
+    const { error: authError } = await signUp(email, password, name);
     
     if (authError) {
-      setError("خطأ في تسجيل الدخول. يرجى التحقق من بياناتك والمحاولة مرة أخرى.");
+      setError("خطأ في إنشاء الحساب. يرجى المحاولة مرة أخرى.");
     } else {
       navigate("/dashboard");
     }
@@ -58,33 +73,49 @@ const Login = () => {
         <div className="text-center">
           <Link to="/" className="inline-flex items-center space-x-2 space-x-reverse mb-6">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">ف</span>
+              <img src="/icon.png" alt="logo" className="w-6 h-6" />
             </div>
             <span className="text-2xl font-bold text-foreground">واعي | Wise</span>
           </Link>
           
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            أهلاً بك مرة أخرى
+            إنشاء حساب جديد
           </h2>
           <p className="text-muted-foreground">
-            سجل دخولك للوصول إلى لوحة التحكم
+            انضم إلينا اليوم وابدأ رحلتك الإبداعية
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Register Form */}
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-center">تسجيل الدخول</CardTitle>
+            <CardTitle className="text-center">التسجيل</CardTitle>
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleRegister} className="space-y-6">
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
               
+              <div className="space-y-2">
+                <Label htmlFor="name">الاسم الكامل</Label>
+                <div className="relative">
+                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="pr-10"
+                    placeholder="أدخل اسمك الكامل"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">البريد الإلكتروني</Label>
                 <div className="relative">
@@ -113,6 +144,7 @@ const Login = () => {
                     className="pr-10 pl-10"
                     placeholder="أدخل كلمة المرور"
                     required
+                    minLength={6}
                   />
                   <button
                     type="button"
@@ -123,22 +155,29 @@ const Login = () => {
                   </button>
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pr-10 pl-10"
+                    placeholder="أعد إدخال كلمة المرور"
+                    required
+                    minLength={6}
                   />
-                  <label htmlFor="remember" className="mr-2 text-sm text-muted-foreground">
-                    تذكرني
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
-                
-                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                  نسيت كلمة المرور؟
-                </Link>
               </div>
               
               <Button 
@@ -146,14 +185,14 @@ const Login = () => {
                 className="w-full gradient-primary" 
                 disabled={isLoading}
               >
-                {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </Button>
             </form>
             
             <div className="mt-6 text-center">
-              <span className="text-muted-foreground">ليس لديك حساب؟ </span>
-              <Link to="/register" className="text-primary hover:underline font-medium">
-                إنشاء حساب جديد
+              <span className="text-muted-foreground">لديك حساب بالفعل؟ </span>
+              <Link to="/login" className="text-primary hover:underline font-medium">
+                تسجيل الدخول
               </Link>
             </div>
           </CardContent>
@@ -173,4 +212,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
