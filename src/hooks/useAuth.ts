@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const useAuth = () => {
@@ -9,16 +9,19 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -28,21 +31,27 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const requireConfig = () => {
+    if (!isSupabaseConfigured) {
+      toast.error('خدمة Supabase غير مُهيأة. الرجاء إعداد مفاتيح البيئة أولاً.');
+      return false;
+    }
+    return true;
+  };
+
   const signUp = async (email: string, password: string, name: string) => {
+    if (!requireConfig()) return { data: null, error: 'Supabase not configured' } as const;
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            name,
-          },
+          data: { name },
         },
       });
 
       if (error) throw error;
-      
       toast.success('تم إنشاء الحساب بنجاح!');
       return { data, error: null };
     } catch (error: any) {
@@ -52,14 +61,10 @@ export const useAuth = () => {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!requireConfig()) return { data: null, error: 'Supabase not configured' } as const;
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      
       toast.success('تم تسجيل الدخول بنجاح!');
       return { data, error: null };
     } catch (error: any) {
@@ -69,10 +74,10 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
+    if (!requireConfig()) return { error: 'Supabase not configured' } as const;
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
       toast.success('تم تسجيل الخروج بنجاح');
       return { error: null };
     } catch (error: any) {
