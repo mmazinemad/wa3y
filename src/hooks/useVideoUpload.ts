@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
@@ -10,7 +10,16 @@ export const useVideoUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const requireConfig = () => {
+    if (!isSupabaseConfigured) {
+      toast.error('خدمة Supabase غير مُهيأة.');
+      return false;
+    }
+    return true;
+  };
+
   const uploadVideo = async (file: File, title: string) => {
+    if (!requireConfig()) return { error: 'Supabase not configured' } as const;
     if (!user) {
       toast.error('يجب تسجيل الدخول أولاً');
       return { error: 'Not authenticated' };
@@ -72,6 +81,7 @@ export const useVideoUpload = () => {
   };
 
   const saveEmbedVideo = async (url: string, title: string) => {
+    if (!requireConfig()) return { data: null, error: 'Supabase not configured' } as const;
     if (!user) {
       toast.error('يجب تسجيل الدخول أولاً');
       return { error: 'Not authenticated' };
@@ -101,6 +111,7 @@ export const useVideoUpload = () => {
   };
 
   const deleteVideo = async (videoId: number, storagePath?: string) => {
+    if (!requireConfig()) return { error: 'Supabase not configured' } as const;
     if (!user) return { error: 'Not authenticated' };
 
     try {

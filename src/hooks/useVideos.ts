@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface Video {
@@ -24,10 +24,15 @@ export const useVideos = (userId?: string) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
     fetchVideos();
   }, [userId]);
 
   const fetchVideos = async () => {
+    if (!isSupabaseConfigured) return;
     try {
       let query = supabase
         .from('videos')
