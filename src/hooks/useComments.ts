@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
@@ -21,33 +21,36 @@ export const useComments = (videoId: number) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (videoId) {
-      fetchComments();
-      
-      // Subscribe to realtime updates
-      const channel = supabase
-        .channel(`comments:${videoId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'comments',
-            filter: `video_id=eq.${videoId}`,
-          },
-          () => {
-            fetchComments();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
+    if (!isSupabaseConfigured || !videoId) {
+      setLoading(false);
+      return;
     }
+
+    fetchComments();
+
+    const channel = supabase
+      .channel(`comments:${videoId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'comments',
+          filter: `video_id=eq.${videoId}`,
+        },
+        () => {
+          fetchComments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [videoId]);
 
   const fetchComments = async () => {
+    if (!isSupabaseConfigured) return;
     try {
       const { data, error } = await supabase
         .from('comments')
@@ -71,6 +74,10 @@ export const useComments = (videoId: number) => {
   };
 
   const addComment = async (content: string) => {
+    if (!isSupabaseConfigured) {
+      toast.error('خدمة Supabase غير مُهيأة.');
+      return { data: null, error: 'Supabase not configured' };
+    }
     if (!user) {
       toast.error('يجب تسجيل الدخول للتعليق');
       return { error: 'Not authenticated' };
