@@ -1,16 +1,22 @@
-
-import { useState } from 'react';
-import { useAllVideos } from '@/hooks/useAllVideos';
-import { Video } from '@/types';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Trash2, Edit, Save, X } from 'lucide-react';
+import { useState } from "react";
+import { useVideosWithUsers } from "@/hooks/useVideosWithUsers";
+import { Video } from "@/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Trash2, Edit, Save, X } from "lucide-react";
 
 export const VideosTable = () => {
-  const { videos, loading, updateVideo, deleteVideo } = useAllVideos();
+  const { videos, loading, updateVideo, deleteVideo } = useVideosWithUsers();
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
-  const [editedTitle, setEditedTitle] = useState('');
+  const [editedTitle, setEditedTitle] = useState("");
 
   const startEditing = (video: Video) => {
     setEditingVideo(video);
@@ -46,23 +52,42 @@ export const VideosTable = () => {
             {editingVideo?.id === video.id ? (
               <>
                 <TableCell>
-                  <Input value={editedTitle} onChange={(e) => setEditedTitle(e.target.value)} />
+                  <Input
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                  />
                 </TableCell>
-                <TableCell>{video.user?.name}</TableCell>
+                <TableCell>{video.user?.name || "Unknown"}</TableCell>
                 <TableCell>{video.createdAt.toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <Button size="sm" onClick={handleUpdate}><Save className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="ghost" onClick={cancelEditing}><X className="h-4 w-4" /></Button>
+                  <Button size="sm" onClick={handleUpdate}>
+                    <Save className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={cancelEditing}>
+                    <X className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </>
             ) : (
               <>
                 <TableCell>{video.title}</TableCell>
-                <TableCell>{video.user?.name}</TableCell>
+                <TableCell>{video.user?.name || "Unknown"}</TableCell>
                 <TableCell>{video.createdAt.toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <Button size="sm" variant="ghost" onClick={() => startEditing(video)}><Edit className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="destructive" onClick={() => deleteVideo(video.id)}><Trash2 className="h-4 w-4" /></Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => startEditing(video)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteVideo(video.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </>
             )}
