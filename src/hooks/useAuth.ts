@@ -1,78 +1,64 @@
+
 import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { User, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/integrations/firebase/client';
 import { toast } from 'sonner';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        name,
         email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            name,
-          },
-        },
+        role: 'user',
+        title: '',
+        bio: '',
+        pannerImageUrl: '',
+        image: '',
+        socialMediaLinks: [],
+        createdAt: serverTimestamp(),
       });
 
-      if (error) throw error;
-      
       toast.success('تم إنشاء الحساب بنجاح!');
-      return { data, error: null };
+      return { user, error: null };
     } catch (error: any) {
       toast.error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
-      return { data: null, error };
+      return { user: null, error };
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       toast.success('تم تسجيل الدخول بنجاح!');
-      return { data, error: null };
+      return { user: userCredential.user, error: null };
     } catch (error: any) {
       toast.error(error.message || 'حدث خطأ أثناء تسجيل الدخول');
-      return { data: null, error };
+      return { user: null, error };
     }
   };
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await firebaseSignOut(auth);
       toast.success('تم تسجيل الخروج بنجاح');
       return { error: null };
     } catch (error: any) {
@@ -83,7 +69,6 @@ export const useAuth = () => {
 
   return {
     user,
-    session,
     loading,
     signUp,
     signIn,

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Layout/Navigation";
+import Footer from "./components/Layout/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Team from "./pages/Team";
@@ -22,22 +23,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-background font-cairo" dir="rtl">
+        <div className="min-h-screen bg-background font-cairo flex flex-col" dir="rtl">
           <Navigation />
-          <main>
+          <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/team" element={<Team />} />
               <Route path="/team/:id" element={<TeamProfile />} />
               <Route path="/videos" element={<Videos />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
+          <Footer/>
         </div>
       </BrowserRouter>
     </TooltipProvider>

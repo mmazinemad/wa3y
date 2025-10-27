@@ -1,38 +1,37 @@
-import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Target, Eye, Heart, Award } from "lucide-react";
+import { useAllVideos } from "@/hooks/useAllVideos";
+import { useAllUsers } from "@/hooks/useAllUsers";
+import { metaData } from "@/constants";
 
+const values = [
+  {
+    icon: Target,
+    title: "الهدف",
+    description: "نهدف لإلهام الشباب المصري والعربي عبر محتوى إبداعي هادف يعكس طموحات جيلنا ويصنع تأثيرًا إيجابيًا في المجتمع."
+  },
+  {
+    icon: Eye,
+    title: "الرؤية",
+    description: "أن نكون من أبرز الفرق المؤثرة في العالم العربي، نوصل رسائلنا بصدق ونبني مجتمعًا من الإبداع والتأثير."
+  },
+  {
+    icon: Heart,
+    title: "القيم",
+    description: "الإبداع، الشغف، التعاون، والصدق في كل ما نقدمه."
+  },
+  {
+    icon: Award,
+    title: "التميز",
+    description: "نسعى لتقديم محتوى مميز يعبر عنا ويترك بصمة حقيقية في قلوب متابعينا."
+  }
+];
 const About = () => {
-  const values = [
-    {
-      icon: Target,
-      title: "الهدف",
-      description: "نهدف إلى تمكين الفرق الإبداعية من مشاركة وإدارة محتواهم المرئي بطريقة سهلة ومنظمة."
-    },
-    {
-      icon: Eye,
-      title: "الرؤية",
-      description: "أن نكون المنصة الرائدة في الوطن العربي لإدارة المحتوى المرئي للفرق والمؤسسات."
-    },
-    {
-      icon: Heart,
-      title: "القيم",
-      description: "نؤمن بالإبداع والتعاون والجودة في كل ما نقدمه لمجتمعنا من المبدعين العرب."
-    },
-    {
-      icon: Award,
-      title: "التميز",
-      description: "نسعى لتقديم خدمات متميزة تلبي احتياجات مستخدمينا وتتجاوز توقعاتهم."
-    }
-  ];
 
-  const stats = [
-    { number: "500+", label: "فيديو مشارك" },
-    { number: "50+", label: "عضو فريق" },
-    { number: "25+", label: "مشروع مكتمل" },
-    { number: "98%", label: "رضا العملاء" }
-  ];
+  const { videos, loading, error } = useAllVideos();
+  const { users, loading: usersLoading, error: usersError } = useAllUsers();
+
 
   return (
     <div className="min-h-screen py-16">
@@ -43,7 +42,7 @@ const About = () => {
             <Badge variant="secondary" className="mb-4 text-sm px-4 py-2">
               من نحن
             </Badge>
-            
+
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
               نحن فريق من المبدعين
               <br />
@@ -51,11 +50,10 @@ const About = () => {
                 نبني المستقبل المرئي
               </span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-3xl mx-auto">
-              منصتنا تجمع بين التقنية الحديثة والتصميم الأنيق لتوفر لك أفضل تجربة في إدارة ومشاركة المحتوى المرئي. 
-              نحن متخصصون في تطوير حلول تقنية تدعم المحتوى العربي بشكل كامل.
-            </p>
+            منصتنا تجمع بين الإبداع وروح الشباب لتقديم محتوى عربي ملهم يعبر عن واقعنا وطموحاتنا.
+            نستخدم التقنية الحديثة والتصميم الأنيق لصناعة تجربة فريدة تعكس هوية المبدعين المصريين والعرب.</p>
           </div>
         </div>
       </section>
@@ -71,7 +69,7 @@ const About = () => {
               نؤمن بمبادئ راسخة توجه عملنا وتشكل هويتنا كفريق إبداعي
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => (
               <Card key={index} className="group hover:shadow-primary transition-all duration-300 animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -79,11 +77,11 @@ const About = () => {
                   <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <value.icon className="w-8 h-8 text-white" />
                   </div>
-                  
+
                   <h3 className="text-xl font-bold text-foreground mb-3">
                     {value.title}
                   </h3>
-                  
+
                   <p className="text-muted-foreground leading-relaxed">
                     {value.description}
                   </p>
@@ -107,18 +105,45 @@ const About = () => {
                   نفخر بما حققناه من إنجازات مع مجتمعنا المتنامي
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                {stats.map((stat, index) => (
-                  <div key={index} className="text-center animate-slide-up" style={{ animationDelay: `${index * 0.2}s` }}>
-                    <div className="text-4xl md:text-5xl font-bold mb-2">
-                      {stat.number}
-                    </div>
-                    <div className="text-lg opacity-90">
-                      {stat.label}
-                    </div>
+                <div className="text-center animate-slide-up" style={{ animationDelay: "0" }}>
+                  <div className="text-4xl md:text-5xl font-bold mb-2">
+                  {!error && !loading && `${videos.length}`}+
+                    {error && !loading && "حدث خطأ أثناء تحميل المستخدمين"}
+                    {!error && loading && "جار التحميل...."}
                   </div>
-                ))}
+                  <div className="text-lg opacity-90">
+                    فيديو مشارك
+                  </div>
+                </div>
+                <div className="text-center animate-slide-up" style={{ animationDelay: "0.2" }}>
+                  <div className="text-4xl md:text-5xl font-bold mb-2">
+                    {!usersError && !usersLoading && `${users.length}`}+
+                    {usersError && !usersLoading && "حدث خطأ أثناء تحميل المستخدمين"}
+                    {!usersError && usersLoading && "جار التحميل...."}
+                  </div>
+                  <div className="text-lg opacity-90">
+                    عضو في الفريق
+                  </div>
+                </div>
+                <div className="text-center animate-slide-up" style={{ animationDelay: "0.4" }}>
+                  <div className="text-4xl md:text-5xl font-bold mb-2">
+                    {metaData.weaklyVideo}+
+                  </div>
+                  <div className="text-lg opacity-90">
+                    فيديو اسبوعيا
+                  </div>
+                </div>
+                <div className="text-center animate-slide-up" style={{ animationDelay: "0.6" }}>
+                  <div className="text-4xl md:text-5xl font-bold mb-2">
+                    {metaData.folwers / 1000}k+
+                  </div>
+                  <div className="text-lg opacity-90">
+                  متابع
+                  </div>
+                </div>
+
               </div>
             </CardContent>
           </Card>
@@ -136,22 +161,19 @@ const About = () => {
                 </h2>
                 <div className="w-24 h-1 bg-gradient-primary mx-auto rounded-full"></div>
               </div>
-              
+
               <div className="prose prose-lg max-w-none text-muted-foreground leading-relaxed space-y-6">
-                <p>
-                  بدأت رحلتنا عام 2023 عندما لاحظنا الحاجة الماسة لمنصة عربية متخصصة في إدارة المحتوى المرئي. 
-                  كنا مجموعة من المطورين والمصممين الذين يؤمنون بقوة المحتوى العربي وأهمية دعمه تقنياً.
+                <p>بدأت رحلتنا عام 2023 كمجموعة من الشباب المصري الطموح الذين يجمعهم حلم واحد: ترك بصمة حقيقية في المجتمع المصري والعربي من خلال الإنترنت.
+                  جمعنا الشغف بالمحتوى، والرغبة في إيصال صوتنا وأفكارنا بطريقة مختلفة، فقررنا أن نحول طاقتنا الإبداعية إلى رسالة ملهمة تُحدث أثراً حقيقياً.
                 </p>
-                
+
                 <p>
-                  واجهنا تحديات كثيرة في البداية، خاصة في تطوير واجهات تدعم اللغة العربية بشكل مثالي وتوفر تجربة 
-                  مستخدم سلسة. لكن إيماننا بالهدف دفعنا للاستمرار والتطوير.
+                  واجهنا تحديات كثيرة في البداية — من تطوير أسلوبنا، إلى بناء هويتنا الرقمية، وحتى فهم ما يحتاجه جمهورنا العربي. لكن الإصرار على النجاح وحبّ ما نفعل كانا دافعنا للاستمرار.
                 </p>
-                
+
                 <p>
-                  اليوم، نفخر بما وصلنا إليه. منصتنا تخدم المئات من المبدعين العرب وتساعدهم في تنظيم وإدارة 
-                  محتواهم المرئي بطريقة احترافية. ما زلنا في بداية الطريق، ونتطلع لمستقبل مشرق مليء بالإبداع والابتكار.
-                </p>
+                  اليوم، نحن فخورون بأننا أصبحنا جزءاً من مشهد صناعة المحتوى العربي، نعمل على تقديم محتوى هادف يجمع بين الإبداع، الترفيه، والتأثير الإيجابي.
+                  ورحلتنا ما زالت في بدايتها — فالقادم، بإذن الله، سيكون أكبر وأجمل. 🌟</p>
               </div>
             </CardContent>
           </Card>

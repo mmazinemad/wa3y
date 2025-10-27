@@ -1,74 +1,55 @@
+
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, getDoc, DocumentData } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
 export interface Comment {
-  id: number;
-  video_id: number;
-  user_id: string;
+  id: string;
+  videoId: string;
+  userId: string;
   content: string;
-  created_at: string;
-  users?: {
+  createdAt: Date;
+  user?: {
     name: string | null;
     image: string | null;
   };
 }
 
-export const useComments = (videoId: number) => {
+export const useComments = (videoId: string) => {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (videoId) {
-      fetchComments();
-      
-      // Subscribe to realtime updates
-      const channel = supabase
-        .channel(`comments:${videoId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'comments',
-            filter: `video_id=eq.${videoId}`,
+    if (!videoId) return;
+
+    const q = query(collection(db, 'comments'), where('videoId', '==', videoId));
+
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const commentsData: Comment[] = [];
+      for (const commentDoc of snapshot.docs) {
+        const commentData = commentDoc.data();
+        const userDoc = await getDoc(doc(db, 'users', commentData.userId));
+        const userData = userDoc.data() as DocumentData | undefined;
+
+        commentsData.push({
+          id: commentDoc.id,
+          ...commentData,
+          createdAt: commentData.createdAt.toDate(),
+          user: {
+            name: userData?.name || null,
+            image: userData?.image || null,
           },
-          () => {
-            fetchComments();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [videoId]);
-
-  const fetchComments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('comments')
-        .select(`
-          *,
-          users (
-            name,
-            image
-          )
-        `)
-        .eq('video_id', videoId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setComments(data || []);
-    } catch (error: any) {
-      console.error('Error fetching comments:', error);
-    } finally {
+        } as Comment);
+      }
+      setComments(commentsData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
       setLoading(false);
-    }
-  };
+    });
+
+    return () => unsubscribe();
+  }, [videoId]);
 
   const addComment = async (content: string) => {
     if (!user) {
@@ -77,38 +58,27 @@ export const useComments = (videoId: number) => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('comments')
-        .insert({
-          video_id: videoId,
-          user_id: user.id,
-          content,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      await addDoc(collection(db, 'comments'), {
+        videoId,
+        userId: user.uid,
+        content,
+        createdAt: new Date(),
+      });
 
       toast.success('تم إضافة التعليق بنجاح');
-      return { data, error: null };
+      return { error: null };
     } catch (error: any) {
       console.error('Error adding comment:', error);
       toast.error('حدث خطأ أثناء إضافة التعليق');
-      return { data: null, error };
+      return { error };
     }
   };
 
-  const deleteComment = async (commentId: number) => {
+  const deleteComment = async (commentId: string) => {
     if (!user) return { error: 'Not authenticated' };
 
     try {
-      const { error } = await supabase
-        .from('comments')
-        .delete()
-        .eq('id', commentId);
-
-      if (error) throw error;
-
+      await deleteDoc(doc(db, 'comments', commentId));
       toast.success('تم حذف التعليق بنجاح');
       return { error: null };
     } catch (error: any) {
@@ -123,6 +93,5 @@ export const useComments = (videoId: number) => {
     loading,
     addComment,
     deleteComment,
-    refetch: fetchComments,
   };
 };

@@ -1,72 +1,36 @@
+
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
-export const useLikes = (videoId: number) => {
+export const useLikes = (videoId: string) => {
   const { user } = useAuth();
   const [likesCount, setLikesCount] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (videoId) {
-      fetchLikes();
-      
-      // Subscribe to realtime updates
-      const channel = supabase
-        .channel(`likes:${videoId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'likes',
-            filter: `video_id=eq.${videoId}`,
-          },
-          () => {
-            fetchLikes();
-          }
-        )
-        .subscribe();
+    if (!videoId) return;
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [videoId, user]);
+    const q = query(collection(db, 'likes'), where('videoId', '==', videoId));
 
-  const fetchLikes = async () => {
-    try {
-      // Get total likes count
-      const { count, error: countError } = await supabase
-        .from('likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('video_id', videoId);
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const likes = snapshot.docs;
+      setLikesCount(likes.length);
 
-      if (countError) throw countError;
-      setLikesCount(count || 0);
-
-      // Check if current user has liked
       if (user) {
-        const { data, error: likeError } = await supabase
-          .from('likes')
-          .select('id')
-          .eq('video_id', videoId)
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (likeError) throw likeError;
-        setHasLiked(!!data);
+        const userLike = likes.find((like) => like.data().userId === user.uid);
+        setHasLiked(!!userLike);
       } else {
         setHasLiked(false);
       }
-    } catch (error: any) {
-      console.error('Error fetching likes:', error);
-    } finally {
       setLoading(false);
-    }
-  };
+    });
+
+    return () => unsubscribe();
+  }, [videoId, user]);
 
   const toggleLike = async () => {
     if (!user) {
@@ -75,25 +39,19 @@ export const useLikes = (videoId: number) => {
     }
 
     try {
-      if (hasLiked) {
-        // Remove like
-        const { error } = await supabase
-          .from('likes')
-          .delete()
-          .eq('video_id', videoId)
-          .eq('user_id', user.id);
+      const q = query(collection(db, 'likes'), where('videoId', '==', videoId), where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
 
-        if (error) throw error;
-      } else {
+      if (querySnapshot.empty) {
         // Add like
-        const { error } = await supabase
-          .from('likes')
-          .insert({
-            video_id: videoId,
-            user_id: user.id,
-          });
-
-        if (error) throw error;
+        await addDoc(collection(db, 'likes'), {
+          videoId,
+          userId: user.uid,
+        });
+      } else {
+        // Remove like
+        const likeDoc = querySnapshot.docs[0];
+        await deleteDoc(doc(db, 'likes', likeDoc.id));
       }
 
       return { error: null };
@@ -109,6 +67,5 @@ export const useLikes = (videoId: number) => {
     hasLiked,
     loading,
     toggleLike,
-    refetch: fetchLikes,
   };
 };

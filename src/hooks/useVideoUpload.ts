@@ -1,140 +1,101 @@
+
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { collection, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { db, storage } from '@/integrations/firebase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
-
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 export const useVideoUpload = () => {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const uploadVideo = async (file: File, title: string) => {
-    if (!user) {
-      toast.error('يجب تسجيل الدخول أولاً');
-      return { error: 'Not authenticated' };
-    }
+  const saveVideoMetadata = async (videoData: any) => {
+    if (!user) throw new Error('User not authenticated');
+    await addDoc(collection(db, 'videos'), {
+      ...videoData,
+      userId: user.uid,
+      createdAt: serverTimestamp(),
+    });
+  };
 
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error('حجم الملف يجب أن يكون أقل من 100 ميجابايت');
-      return { error: 'File too large' };
+  const uploadVideo = (file: File, title: string) => {
+    if (!user) {
+      toast.error('You must be logged in to upload a video.');
+      return;
+    }
+    if (!file || !title) {
+      toast.error('Please provide a file and a title.');
+      return;
     }
 
     setUploading(true);
     setProgress(0);
 
-    try {
-      // Upload file to storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+    const fileExtension = file.name.split('.').pop();
+    const storagePath = `videos/${user.uid}/${new Date().getTime()}.${fileExtension}`;
+    const storageRef = ref(storage, storagePath);
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('videos')
-        .getPublicUrl(fileName);
-
-      // Create video record in database
-      const { data: videoData, error: dbError } = await supabase
-        .from('videos')
-        .insert({
-          user_id: user.id,
-          title,
-          video_url: publicUrl,
-          storage_path: fileName,
-          type: 'uploaded',
-        })
-        .select()
-        .single();
-
-      if (dbError) throw dbError;
-
-      toast.success('تم رفع الفيديو بنجاح!');
-      setProgress(100);
-      return { data: videoData, error: null };
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error('حدث خطأ أثناء رفع الفيديو');
-      return { data: null, error };
-    } finally {
-      setUploading(false);
-      setTimeout(() => setProgress(0), 1000);
-    }
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const currentProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(currentProgress);
+      },
+      (error) => {
+        console.error("Upload error:", error);
+        toast.error(`Upload failed: ${error.message}`);
+        setUploading(false);
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          await saveVideoMetadata({ title, videoUrl: downloadURL, storagePath, type: 'uploaded' });
+          toast.success('Video uploaded and saved successfully!');
+        } catch (error: any) {
+          console.error("Error saving video metadata:", error);
+          toast.error(`Failed to save video details: ${error.message}`);
+        } finally {
+          setUploading(false);
+          setProgress(0);
+        }
+      }
+    );
   };
 
   const saveEmbedVideo = async (url: string, title: string) => {
     if (!user) {
-      toast.error('يجب تسجيل الدخول أولاً');
-      return { error: 'Not authenticated' };
+      toast.error('You must be logged in to save a video.');
+      return;
+    }
+    if (!url || !title) {
+      toast.error('Please provide a URL and a title.');
+      return;
     }
 
     try {
-      const { data, error } = await supabase
-        .from('videos')
-        .insert({
-          user_id: user.id,
-          title,
-          video_url: url,
-          type: 'embed',
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast.success('تم حفظ الفيديو بنجاح!');
-      return { data, error: null };
+      await saveVideoMetadata({ title, videoUrl: url, type: 'embed' });
+      toast.success('Embedded video saved successfully!');
     } catch (error: any) {
-      console.error('Save error:', error);
-      toast.error('حدث خطأ أثناء حفظ الفيديو');
-      return { data: null, error };
+      console.error("Error saving embed video:", error);
+      toast.error(`Failed to save video: ${error.message}`);
     }
   };
 
-  const deleteVideo = async (videoId: number, storagePath?: string) => {
-    if (!user) return { error: 'Not authenticated' };
-
+  const deleteVideo = async (videoId: string, storagePath?: string) => {
     try {
-      // Delete from storage if it's an uploaded video
       if (storagePath) {
-        const { error: storageError } = await supabase.storage
-          .from('videos')
-          .remove([storagePath]);
-
-        if (storageError) throw storageError;
+        const storageRef = ref(storage, storagePath);
+        await deleteObject(storageRef);
       }
-
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from('videos')
-        .delete()
-        .eq('id', videoId);
-
-      if (dbError) throw dbError;
-
-      toast.success('تم حذف الفيديو بنجاح');
-      return { error: null };
+      await deleteDoc(doc(db, 'videos', videoId));
+      toast.success('Video deleted successfully');
     } catch (error: any) {
-      console.error('Delete error:', error);
-      toast.error('حدث خطأ أثناء حذف الفيديو');
-      return { error };
+      console.error("Error deleting video:", error);
+      toast.error(`Failed to delete video: ${error.message}`);
     }
   };
 
-  return {
-    uploadVideo,
-    saveEmbedVideo,
-    deleteVideo,
-    uploading,
-    progress,
-  };
+  return { uploadVideo, saveEmbedVideo, deleteVideo, uploading, progress };
 };

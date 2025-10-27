@@ -1,10 +1,27 @@
-import React from "react";
+
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import TeamCard from "@/components/Team/TeamCard";
-import { mockTeamMembers } from "@/data/mockData";
+import { useAllUsers } from "@/hooks/useAllUsers";
+import { useAllVideos } from "@/hooks/useAllVideos";
 
 const Team = () => {
-  const totalVideos = mockTeamMembers.reduce((total, member) => total + (member.videoCount || 0), 0);
+  const { users: allUsers, loading: usersLoading } = useAllUsers();
+  const { videos: allVideos, loading: videosLoading } = useAllVideos();
+
+  const influencers = allUsers.filter(user => user.role === 'influencer');
+  const totalVideos = allVideos.length;
+
+  if (usersLoading || videosLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-16">
@@ -31,7 +48,7 @@ const Team = () => {
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-center">
               <div className="bg-card rounded-lg p-4 shadow-card">
-                <div className="text-2xl font-bold text-primary">{mockTeamMembers.length}</div>
+                <div className="text-2xl font-bold text-primary">{influencers.length}</div>
                 <div className="text-sm text-muted-foreground">عضو في الفريق</div>
               </div>
               
@@ -53,10 +70,10 @@ const Team = () => {
       <section className="px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mockTeamMembers.map((member, index) => (
-              <div key={member.id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+            {influencers.map((member, index) => (
+              <Link to={`/team/${member.id}`} key={member.id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                 <TeamCard member={member} />
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -67,26 +84,27 @@ const Team = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-gradient-primary rounded-3xl p-12 text-white text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              هل تريد الانضمام إلينا؟
+            هل ترغب بالتعاون معنا؟
             </h2>
             <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              نحن دائماً نبحث عن المواهب المميزة للانضمام إلى فريقنا. إذا كنت شغوفاً بالمحتوى المرئي والتقنية، فنحن نرحب بك.
-            </p>
+            حن نؤمن أن الإبداع يكبر بالمشاركة.
+            إذا كانت لديك فكرة أو مشروع وتبحث عن مؤثرين يضيفون له روحاً جديدة — تواصل معنا!
+              </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="mailto:careers@videoteam.com"
+              <Link
+                to="/#contactUs"
                 className="inline-flex items-center justify-center px-8 py-3 bg-white text-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors"
               >
                 تواصل معنا
-              </a>
+              </Link>
               
-              <a
-                href="/about"
+              <Link
+                to="/videoas"
                 className="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-primary transition-colors"
               >
-                اعرف المزيد عنا
-              </a>
+                شاهد أعمالنا
+              </Link>
             </div>
           </div>
         </div>

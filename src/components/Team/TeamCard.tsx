@@ -1,20 +1,13 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  bio: string;
-  avatar_url: string;
-  videoCount?: number;
-}
+import { UserProfile } from "@/types";
 
 interface TeamCardProps {
-  member: TeamMember;
+  member: UserProfile;
 }
 
 const TeamCard: React.FC<TeamCardProps> = ({ member }) => {
@@ -24,7 +17,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ member }) => {
       <div className="flex justify-center mb-4">
         <div className="relative">
           <img
-            src={member.avatar_url}
+            src={member.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.email}`}
             alt={member.name}
             className="w-20 h-20 rounded-full object-cover shadow-primary"
           />
@@ -43,18 +36,12 @@ const TeamCard: React.FC<TeamCardProps> = ({ member }) => {
         <h3 className="text-lg font-bold text-foreground">{member.name}</h3>
         
         <Badge variant="secondary" className="text-sm">
-          {member.role}
+          {member.title}
         </Badge>
 
         <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-          {member.bio}
+          {member.bio || 'هذا العضو لم يقم بكتابة نبذة شخصية بعد.'}
         </p>
-
-        {member.videoCount && (
-          <div className="text-xs text-accent font-medium">
-            {member.videoCount} فيديو
-          </div>
-        )}
       </div>
 
       {/* Action Button */}

@@ -1,76 +1,60 @@
+
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
-
-export interface UserProfile {
-  id: string;
-  name: string | null;
-  role: 'user' | 'admin' | 'influencer';
-  image: string | null;
-  created_at: string;
-}
+import { UserProfile } from '@/types';
 
 export const useUserData = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (user) {
-      fetchProfile();
+      const unsub = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+        if (doc.exists()) {
+          setProfile(doc.data() as UserProfile);
+        } else {
+          setProfile(null);
+        }
+        setLoading(false);
+      }, (err) => {
+        console.error("Error fetching user data:", err);
+        setError(err);
+        toast.error(err.message || 'Failed to fetch user data.');
+        setLoading(false);
+      });
+
+      return () => unsub();
     } else {
       setProfile(null);
       setLoading(false);
     }
   }, [user]);
 
-  const fetchProfile = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) throw error;
-      setProfile(data as UserProfile);
-    } catch (error: any) {
-      console.error('Error fetching profile:', error);
-      toast.error('حدث خطأ في تحميل الملف الشخصي');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return { error: 'No user logged in' };
+    if (!user) {
+      toast.error('You must be logged in to update your profile.');
+      return;
+    }
 
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      setProfile(data as UserProfile);
-      toast.success('تم تحديث الملف الشخصي بنجاح');
-      return { data, error: null };
-    } catch (error: any) {
-      toast.error('حدث خطأ في تحديث الملف الشخصي');
-      return { data: null, error };
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, updates);
+      toast.success('Profile updated successfully!');
+    } catch (err: any) {
+      console.error("Error updating profile:", err);
+      toast.error(err.message || 'Failed to update profile.');
     }
   };
 
   return {
     profile,
     loading,
+    error,
     updateProfile,
-    refetch: fetchProfile,
   };
 };

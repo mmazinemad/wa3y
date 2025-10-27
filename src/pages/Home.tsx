@@ -1,30 +1,32 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlayCircle, Users, Upload, Star } from "lucide-react";
+import { Mail, Users, Music, Book, Moon } from "lucide-react";
+import  LatestWork  from "@/components/LatestWork";
+import { ContactUs } from "@/components/ContactUs";
 
 const Home = () => {
-  const features = [
+  const fields = [
     {
-      icon: Upload,
-      title: "رفع الفيديوهات",
-      description: "ارفع فيديوهاتك بسهولة وشاركها مع فريقك"
+      icon: Music,
+      title: "شعر وغناء",
+      description: "نعبّر عن مشاعرنا بالكلمة واللحن، لنخلق تجربة فنية تصل إلى القلب مباشرة."
     },
     {
-      icon: PlayCircle,
-      title: "دمج الفيديوهات",
-      description: "ادمج فيديوهات من يوتيوب وتيك توك وفيسبوك"
+      icon: Book,
+      title: "كتابة المحتوى",
+      description: "نكتب بفكر وشغف لنشارك رسائل حقيقية تلامس الناس وتلهمهم."
+    },
+    {
+      icon: Moon,
+      title: "محتوى ديني",
+      description: "نقدّم قيمنا ومبادئنا بأسلوب بسيط وقريب من الناس."
     },
     {
       icon: Users,
-      title: "إدارة الفريق",
-      description: "أنشئ ملفات شخصية للأعضاء وأظهر أعمالهم"
-    },
-    {
-      icon: Star,
-      title: "واجهة احترافية",
-      description: "تصميم عصري يدعم اللغة العربية بشكل كامل"
+      title: "محتوى ثقافي",
+      description: "نحتفي بالهوية العربية ونشارك العالم عمق ثقافتنا."
     }
   ];
 
@@ -33,29 +35,28 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
-        
+
         <div className="relative max-w-7xl mx-auto text-center">
           <div className="animate-slide-up">
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              منصة الفيديو العربية
+              فريق مبدع يصنع
               <br />
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                للفرق الإبداعية
+                أثره الرقمي
               </span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              شارك وأدر فيديوهاتك بسهولة مع فريقك. ارفع فيديوهاتك أو ادمج محتوى من منصات التواصل الاجتماعي في مكان واحد.
-            </p>
-            
+              نحن مجموعة شباب مصريين، جمعنا الشغف وصناعة المحتوى لنترك بصمتنا في العالم الرقمي. نؤمن أن صوت الجيل الجديد قادر على الإلهام والتغيير عبر الإبداع والتأثير الإيجابي. </p>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" className="gradient-primary shadow-primary text-lg px-8" asChild>
-                <Link to="/dashboard">
-                  <PlayCircle className="w-5 h-5 ml-2" />
-                  ابدأ الآن
-                </Link>
+                <a href="#contactUs">
+                  <Mail className="w-5 h-5 ml-2" />
+                  تواصل معنا
+                  </a>
               </Button>
-              
+
               <Button variant="outline" size="lg" className="text-lg px-8" asChild>
                 <Link to="/videos">
                   عرض الفيديوهات
@@ -64,7 +65,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Floating Animation */}
         <div className="absolute top-20 right-10 animate-float opacity-30">
           <div className="w-20 h-20 bg-gradient-accent rounded-full"></div>
@@ -79,25 +80,25 @@ const Home = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              لماذا تختار منصتنا؟
+            مجالاتنا الإبداعية
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              نوفر لك جميع الأدوات التي تحتاجها لإدارة ومشاركة المحتوى المرئي مع فريقك
+            كل عضو في فريقنا يضيف لونه الخاص، من الشعر والموسيقى إلى التصميم وصناعة المحتوى — معًا نصنع أثراً متنوعاً وملهمًا.  
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            {fields.map((feature, index) => (
               <Card key={index} className="group hover:shadow-primary transition-all duration-300 animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
-                  
+
                   <h3 className="text-lg font-semibold text-foreground mb-2">
                     {feature.title}
                   </h3>
-                  
+
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     {feature.description}
                   </p>
@@ -108,34 +109,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-primary rounded-3xl p-12 text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              جاهز للبدء؟
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              انضم إلى فريقنا وابدأ في مشاركة فيديوهاتك اليوم
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="lg" className="text-lg px-8" asChild>
-                <Link to="/team">
-                  <Users className="w-5 h-5 ml-2" />
-                  تعرف على الفريق
-                </Link>
-              </Button>
-              
-              <Button variant="outline" size="lg" className="text-lg px-8 border-white text-white hover:bg-white hover:text-primary" asChild>
-                <Link to="/about">
-                  معرفة المزيد
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Latest Work Section */}
+      <LatestWork />
+
+      {/* ContactUs Section */}
+      <div id="contactUs">
+        <ContactUs />
+      </div>
     </div>
   );
 };

@@ -1,87 +1,42 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
-export interface Video {
-  id: number;
-  user_id: string;
-  title: string;
-  video_url: string | null;
-  storage_path: string | null;
-  type: 'uploaded' | 'embed';
-  created_at: string;
-  users?: {
-    name: string | null;
-    image: string | null;
-  };
-  likes_count?: number;
-  comments_count?: number;
-  user_has_liked?: boolean;
-}
+import { useState, useEffect, useCallback } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
+import { toast } from 'sonner';
+import { Video } from '@/types';
 
 export const useVideos = (userId?: string) => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    fetchVideos();
+  const refetch = useCallback(() => {
+    setLoading(true);
+    const q = userId
+      ? query(collection(db, 'videos'), where('userId', '==', userId))
+      : collection(db, 'videos');
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const videosData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      } as Video));
+      setVideos(videosData);
+      setLoading(false);
+    }, (err) => {
+      console.error("Error fetching videos:", err);
+      setError(err);
+      toast.error(err.message || "Failed to fetch videos.");
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, [userId]);
 
-  const fetchVideos = async () => {
-    try {
-      let query = supabase
-        .from('videos')
-        .select(`
-          *,
-          users (
-            name,
-            image
-          )
-        `)
-        .order('created_at', { ascending: false });
+  useEffect(() => {
+    const unsubscribe = refetch();
+    return () => unsubscribe();
+  }, [refetch]);
 
-      if (userId) {
-        query = query.eq('user_id', userId);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      // Fetch likes and comments counts for each video
-      const videosWithCounts = await Promise.all(
-        (data || []).map(async (video) => {
-          const [likesResult, commentsResult] = await Promise.all([
-            supabase
-              .from('likes')
-              .select('id', { count: 'exact', head: true })
-              .eq('video_id', video.id),
-            supabase
-              .from('comments')
-              .select('id', { count: 'exact', head: true })
-              .eq('video_id', video.id),
-          ]);
-
-          return {
-            ...video,
-            likes_count: likesResult.count || 0,
-            comments_count: commentsResult.count || 0,
-          };
-        })
-      );
-
-      setVideos(videosWithCounts as Video[]);
-    } catch (error: any) {
-      console.error('Error fetching videos:', error);
-      toast.error('حدث خطأ في تحميل الفيديوهات');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    videos,
-    loading,
-    refetch: fetchVideos,
-  };
+  return { videos, loading, error, refetch };
 };

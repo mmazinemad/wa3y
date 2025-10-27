@@ -1,5 +1,3 @@
-// Mock data for team members and videos
-
 export interface TeamMember {
   id: string;
   name: string;
@@ -102,7 +100,7 @@ export const mockVideos: Video[] = [
     team_member_id: "1",
     type: "embed",
     title: "استراتيجيات المحتوى المرئي",
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.facebook.com/share/v/17TQxqjdnh/",
     thumbnail: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=320&h=180&fit=crop",
     created_at: "2024-02-05T11:10:00Z",
     description: "كيفية تخطيط وتنفيذ محتوى مرئي فعال"
@@ -112,20 +110,9 @@ export const mockVideos: Video[] = [
     team_member_id: "2",
     type: "embed",
     title: "اتجاهات التصميم الحديثة",
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.facebook.com/watch?v=751851504348091",
     thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=320&h=180&fit=crop",
     created_at: "2024-02-10T13:30:00Z",
     description: "آخر اتجاهات التصميم لعام 2024"
-  }
-];
-
-// Mock user data for authentication demonstration
-export const mockUsers = [
-  {
-    id: "user-1",
-    name: "محمد عبدالله",
-    email: "mohamed@example.com",
-    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    role: "مستخدم"
   }
 ];
