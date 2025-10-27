@@ -15,9 +15,12 @@ const Videos = () => {
   const { users } = useAllUsers();
 
   const filteredVideos = videos.filter((video) => {
-    const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMember = selectedMember === "all" || video.userId === selectedMember;
-    
+    const matchesSearch = video.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesMember =
+      selectedMember === "all" || video.userId === selectedMember;
+
     return matchesSearch && matchesMember;
   });
 
@@ -29,13 +32,18 @@ const Videos = () => {
             <Badge variant="secondary" className="mb-4 text-sm px-4 py-2">
               معرض الفيديوهات
             </Badge>
-            
+
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              مكتبة<br /><span className="bg-gradient-primary bg-clip-text text-transparent">الفيديوهات الشاملة</span>
+              مكتبة
+              <br />
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                الفيديوهات الشاملة
+              </span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              استكشف مجموعة متنوعة من الفيديوهات التعليمية والإبداعية من أعضاء فريقنا المتخصصين في مجالات مختلفة.
+              استكشف مجموعة متنوعة من الفيديوهات التعليمية والإبداعية من أعضاء
+              فريقنا المتخصصين في مجالات مختلفة.
             </p>
           </div>
 
@@ -49,7 +57,7 @@ const Videos = () => {
                 className="pr-10"
               />
             </div>
-            
+
             <div className="flex gap-4">
               <select
                 value={selectedMember}
@@ -63,15 +71,41 @@ const Videos = () => {
                   </option>
                 ))}
               </select>
-              
-              <Button variant="outline" size="sm"><Filter className="w-4 h-4 ml-2" />تصفية</Button>
+
+              <Button variant="outline" size="sm">
+                <Filter className="w-4 h-4 ml-2" />
+                تصفية
+              </Button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-            <Card className="text-center"><CardContent className="p-4"><div className="text-2xl font-bold text-primary mb-1">{videos.length}</div><div className="text-sm text-muted-foreground">إجمالي الفيديوهات</div></CardContent></Card>
-            <Card className="text-center"><CardContent className="p-4"><div className="text-2xl font-bold text-secondary mb-1">{users.length}</div><div className="text-sm text-muted-foreground">المساهمون</div></CardContent></Card>
-            <Card className="text-center"><CardContent className="p-4"><div className="text-2xl font-bold text-accent mb-1">{filteredVideos.length}</div><div className="text-sm text-muted-foreground">نتائج البحث</div></CardContent></Card>
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-primary mb-1">
+                  {videos.length}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  إجمالي الفيديوهات
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-secondary mb-1">
+                  {users.length}
+                </div>
+                <div className="text-sm text-muted-foreground">المساهمون</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-accent mb-1">
+                  {filteredVideos.length}
+                </div>
+                <div className="text-sm text-muted-foreground">نتائج البحث</div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -79,21 +113,42 @@ const Videos = () => {
       <section className="px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-lg bg-muted/40 p-4">
+                <div
+                  key={i}
+                  className="break-inside-avoid mb-4 rounded-lg bg-muted/40 p-4"
+                >
                   <div className="h-[200px] w-full animate-pulse rounded-md bg-muted/50"></div>
                   <div className="mt-4 h-6 w-3/4 animate-pulse rounded bg-muted/50"></div>
-                  <div className="mt-2 flex items-center gap-2"><div className="h-6 w-6 animate-pulse rounded-full bg-muted/50"></div><div className="h-4 w-1/4 animate-pulse rounded bg-muted/50"></div></div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-6 w-6 animate-pulse rounded-full bg-muted/50"></div>
+                    <div className="h-4 w-1/4 animate-pulse rounded bg-muted/50"></div>
+                  </div>
                 </div>
               ))}
             </div>
           ) : filteredVideos.length === 0 ? (
-            <Card className="text-center py-12"><CardContent><div className="text-6xl mb-4">🎥</div><h3 className="text-xl font-semibold text-foreground mb-2">لا توجد فيديوهات</h3><p className="text-muted-foreground">جرب تغيير معايير البحث أو الفلترة</p></CardContent></Card>
+            <Card className="text-center py-12">
+              <CardContent>
+                <div className="text-6xl mb-4">🎥</div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  لا توجد فيديوهات
+                </h3>
+                <p className="text-muted-foreground">
+                  جرب تغيير معايير البحث أو الفلترة
+                </p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
               {filteredVideos.map((video) => (
-                <VideoCard key={video.id} video={video} userName={video.user?.name} userImage={video.user?.image} />
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  userName={video.user?.name}
+                  userImage={video.user?.image}
+                />
               ))}
             </div>
           )}

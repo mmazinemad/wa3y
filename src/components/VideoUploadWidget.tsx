@@ -6,18 +6,25 @@ declare global {
   }
 }
 
-interface UploadWidgetProps {
+interface VideoUploadWidgetProps {
   children: (props: {
     cloudinary: any;
     widget: React.MutableRefObject<any>;
     open: () => void;
   }) => React.ReactNode;
-  onUpload?: (error: any, result: any, widget: React.MutableRefObject<any>) => void;
+  onUpload?: (
+    error: any,
+    result: any,
+    widget: React.MutableRefObject<any>
+  ) => void;
 }
 
 let cloudinary: any;
 
-const UploadWidget: React.FC<UploadWidgetProps> = ({ children, onUpload }) => {
+const VideoUploadWidget: React.FC<VideoUploadWidgetProps> = ({
+  children,
+  onUpload,
+}) => {
   const widget = useRef<any>();
 
   useEffect(() => {
@@ -31,7 +38,6 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ children, onUpload }) => {
       }
     };
 
-    // ✅ Use built-in requestIdleCallback safely
     if ("requestIdleCallback" in window) {
       (window as any).requestIdleCallback(onIdle);
     } else {
@@ -42,21 +48,24 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ children, onUpload }) => {
       widget.current?.destroy?.();
       widget.current = undefined;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function createWidget() {
     const cloudName = "dwrbucvkc";
-    // const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
     const uploadPreset = "mazinForWa3i";
 
-    if (!cloudName || !uploadPreset) {
-      console.warn(
-        `⚠️ Please ensure VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET exist in your .env file`
-      );
-    }
-
-    const options = { cloudName, uploadPreset };
+    const options = {
+      cloudName,
+      uploadPreset,
+      sources: ["local", "url"],
+      resourceType: "video",
+      multiple: false,
+      maxFileSize: 500000000,
+      clientAllowedFormats: ["mp4", "mov", "avi", "mkv", "webm"],
+      showAdvancedOptions: false,
+      cropping: false,
+      singleUploadAutoClose: true,
+    };
 
     return cloudinary?.createUploadWidget(
       options,
@@ -78,4 +87,4 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ children, onUpload }) => {
   return <>{children({ cloudinary, widget, open })}</>;
 };
 
-export default UploadWidget;
+export default VideoUploadWidget;

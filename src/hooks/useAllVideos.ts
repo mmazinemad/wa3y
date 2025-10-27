@@ -1,9 +1,14 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/integrations/firebase/client';
-import { toast } from 'sonner';
-import { Video } from '@/types';
+import { useState, useEffect, useCallback } from "react";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "@/integrations/firebase/client";
+import { toast } from "sonner";
+import { Video } from "@/types";
 
 export const useAllVideos = () => {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -12,18 +17,25 @@ export const useAllVideos = () => {
 
   const refetch = useCallback(() => {
     setLoading(true);
-    const unsubscribe = onSnapshot(collection(db, 'videos'), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, "videos"), (snapshot) => {
       try {
-        const videosData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt.toDate(),
-        } as Video));
-        setVideos(videosData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+        const videosData = snapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+              createdAt: doc.data().createdAt.toDate(),
+            } as Video)
+        );
+        setVideos(
+          videosData.sort(
+            (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+          )
+        );
       } catch (err: any) {
-        console.error('Error fetching videos:', err);
+        console.error("Error fetching videos:", err);
         setError(err);
-        toast.error(err.message || 'Failed to fetch videos.');
+        toast.error(err.message || "فشل تحميل الفيديوهات");
       } finally {
         setLoading(false);
       }
@@ -39,22 +51,22 @@ export const useAllVideos = () => {
 
   const updateVideo = async (videoId: string, data: Partial<Video>) => {
     try {
-      const videoDocRef = doc(db, 'videos', videoId);
+      const videoDocRef = doc(db, "videos", videoId);
       await updateDoc(videoDocRef, data);
-      toast.success('Video updated successfully.');
+      toast.success("تم تحديث الفيديو بنجاح");
     } catch (err: any) {
-      console.error('Error updating video:', err);
-      toast.error(err.message || 'Failed to update video.');
+      console.error("Error updating video:", err);
+      toast.error(err.message || "فشل تحديث الفيديو");
     }
   };
 
   const deleteVideo = async (videoId: string) => {
     try {
-      await deleteDoc(doc(db, 'videos', videoId));
-      toast.success("Video deleted successfully.");
+      await deleteDoc(doc(db, "videos", videoId));
+      toast.success("تم حذف الفيديو بنجاح");
     } catch (err: any) {
       console.error("Error deleting video:", err);
-      toast.error(err.message || "Failed to delete video.");
+      toast.error(err.message || "فشل حذف الفيديو");
     }
   };
 

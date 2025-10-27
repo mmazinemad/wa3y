@@ -24,7 +24,7 @@ export const useUserData = () => {
       }, (err) => {
         console.error("Error fetching user data:", err);
         setError(err);
-        toast.error(err.message || 'Failed to fetch user data.');
+        toast.error(err.message || 'فشل تحميل بيانات المستخدم');
         setLoading(false);
       });
 
@@ -37,17 +37,17 @@ export const useUserData = () => {
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) {
-      toast.error('You must be logged in to update your profile.');
+      toast.error('يجب تسجيل الدخول لتحديث الملف الشخصي');
       return;
     }
 
     try {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, updates);
-      toast.success('Profile updated successfully!');
+      toast.success('تم تحديث الملف الشخصي بنجاح!');
     } catch (err: any) {
       console.error("Error updating profile:", err);
-      toast.error(err.message || 'Failed to update profile.');
+      toast.error(err.message || 'فشل تحديث الملف الشخصي');
     }
   };
 

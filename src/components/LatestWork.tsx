@@ -1,7 +1,7 @@
-import { usePublicVideos } from '@/hooks/usePublicVideos';
-import { VideoCard } from './VideoCard';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { usePublicVideos } from "@/hooks/usePublicVideos";
+import { VideoCard } from "./VideoCard";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function LatestWork() {
   const { videos, loading } = usePublicVideos();
@@ -18,9 +18,12 @@ export default function LatestWork() {
           </Link>
         </div>
         {loading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="columns-1 sm:columns-2 md:columns-3 gap-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="rounded-lg bg-muted/40 p-4">
+              <div
+                key={i}
+                className="break-inside-avoid mb-4 rounded-lg bg-muted/40 p-4"
+              >
                 <div className="h-[200px] w-full animate-pulse rounded-md bg-muted/50"></div>
                 <div className="mt-4 h-6 w-3/4 animate-pulse rounded bg-muted/50"></div>
                 <div className="mt-2 flex items-center gap-2">
@@ -31,13 +34,18 @@ export default function LatestWork() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="columns-1 sm:columns-2 md:columns-3 gap-4">
             {latestVideos.map((video) => (
-              <VideoCard key={video.id} video={video} userName={video.user?.name} userImage={video.user?.image} />
+              <VideoCard
+                key={video.id}
+                video={video}
+                userName={video.user?.name}
+                userImage={video.user?.image}
+              />
             ))}
           </div>
         )}
       </div>
     </section>
   );
-};
+}

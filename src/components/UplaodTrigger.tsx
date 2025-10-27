@@ -1,54 +1,88 @@
-
 import { useState } from 'react';
 import UploadWidget from './UploadWidget';
+import { Button } from '@/components/ui/button';
+import { Upload, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
-function UploadTrigger() {
-    const [url, updateUrl] = useState();
-    const [error, updateError] = useState();
+interface UploadTriggerProps {
+  onUpload: (url: string) => void;
+  label?: string;
+  currentImage?: string;
+}
 
-    /**
-     * handleOnUpload
-     */
+function UploadTrigger({ onUpload, label = "رفع صورة", currentImage }: UploadTriggerProps) {
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    function handleOnUpload(error, result, widget) {
+    function handleOnUpload(error: any, result: any, widget: React.MutableRefObject<any>) {
         if (error) {
-            updateError(error);
-            widget.close({
+            setError(error.statusText || 'حدث خطأ أثناء رفع الصورة');
+            setUploading(false);
+            toast.error('فشل رفع الصورة');
+            widget.current?.close({
                 quiet: true
             });
             return;
         }
-        updateUrl(result?.info?.secure_url);
+
+        if (result?.event === "success") {
+            const imageUrl = result?.info?.secure_url;
+            if (imageUrl) {
+                onUpload(imageUrl);
+                setUploading(false);
+                setError(null);
+                toast.success('تم رفع الصورة بنجاح');
+                widget.current?.close({
+                    quiet: true
+                });
+            }
+        } else if (result?.event === "queues-end") {
+            setUploading(false);
+        } else if (result?.event === "upload-added") {
+            setUploading(true);
+            setError(null);
+        }
     }
 
     return (
-        <div>
+        <div className="space-y-2">
+            <UploadWidget onUpload={handleOnUpload}>
+                {({ open }) => {
+                    function handleOnClick(e: React.MouseEvent) {
+                        e.preventDefault();
+                        open();
+                    }
+                    
+                    return (
+                        <Button 
+                            type="button"
+                            variant="outline" 
+                            onClick={handleOnClick}
+                            disabled={uploading}
+                            className="w-full"
+                        >
+                            {uploading ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary ml-2"></div>
+                                    جاري الرفع...
+                                </>
+                            ) : (
+                                <>
+                                    <Upload className="w-4 h-4 ml-2" />
+                                    {label}
+                                </>
+                            )}
+                        </Button>
+                    );
+                }}
+            </UploadWidget>
 
-            <div className="container">
-                <h2>Unsigned with Upload Preset</h2>
-                <UploadWidget onUpload={handleOnUpload}>
-                    {({ open }) => {
-                        function handleOnClick(e) {
-                            e.preventDefault();
-                            open();
-                        }
-                        return (
-                            <button onClick={handleOnClick}>
-                                Upload an Image
-                            </button>
-                        )
-                    }}
-                </UploadWidget>
-
-                {error && <p>{error}</p>}
-
-                {url && (
-                    <>
-                        <p><img src={url} alt="Uploaded resource" /></p>
-                        <p>{url}</p>
-                    </>
-                )}
-            </div>
+            {error && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{error}</span>
+                </div>
+            )}
         </div>
     );
 }

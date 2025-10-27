@@ -1,9 +1,8 @@
-
-import { useState, useEffect, useMemo } from 'react';
-import { toast } from 'sonner';
-import { useAllUsers } from '@/hooks/useAllUsers';
-import { useAllVideos } from '@/hooks/useAllVideos';
-import { Video, UserProfile } from '@/types';
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { useAllUsers } from "@/hooks/useAllUsers";
+import { useAllVideos } from "@/hooks/useAllVideos";
+import { Video, UserProfile } from "@/types";
 
 interface VideoWithUser extends Video {
   user?: UserProfile;
@@ -15,21 +14,21 @@ export const usePublicVideos = () => {
 
   useEffect(() => {
     if (usersError) {
-      toast.error(usersError.message || 'Failed to fetch users.');
+      toast.error(usersError.message || "فشل تحميل المستخدمين");
     }
   }, [usersError]);
 
   useEffect(() => {
     if (videosError) {
-      toast.error(videosError.message || 'Failed to fetch videos.');
+      toast.error(videosError.message || "فشل تحميل الفيديوهات");
     }
   }, [videosError]);
 
   const videosWithUsers = useMemo(() => {
     if (usersLoading || videosLoading) return [];
 
-    return videos.map(video => {
-      const user = users.find(u => u.uid === video.userId);
+    return videos.map((video) => {
+      const user = users.find((u) => u.uid === video.userId);
       return { ...video, user };
     });
   }, [videos, users, usersLoading, videosLoading]);
