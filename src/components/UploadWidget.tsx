@@ -12,7 +12,11 @@ interface UploadWidgetProps {
     widget: React.MutableRefObject<any>;
     open: () => void;
   }) => React.ReactNode;
-  onUpload?: (error: any, result: any, widget: React.MutableRefObject<any>) => void;
+  onUpload?: (
+    error: any,
+    result: any,
+    widget: React.MutableRefObject<any>
+  ) => void;
 }
 
 let cloudinary: any;
@@ -46,9 +50,8 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ children, onUpload }) => {
   }, []);
 
   function createWidget() {
-    const cloudName = "dwrbucvkc";
-    // const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-    const uploadPreset = "mazinForWa3i";
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
       console.warn(
