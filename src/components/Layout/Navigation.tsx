@@ -1,16 +1,26 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Info, Users, Video, LogIn, User as UserIcon, LogOut } from "lucide-react";
+import {
+  Home,
+  Info,
+  Users,
+  Video,
+  LogIn,
+  User as UserIcon,
+  LogOut,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserData } from "@/hooks/useUserData";
 
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, signOut } = useAuth();
+  const { profile, loading: profileLoading } = useUserData();
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   const navItems = [
@@ -56,15 +66,21 @@ const Navigation = () => {
 
           {/* Login/User Button */}
           <div className="flex items-center gap-2">
-            {isAuthenticated ? (
+            {isAuthenticated && !profileLoading ? (
               <>
-                <Button variant="ghost" asChild>
-                  <Link to="/dashboard">
-                    <UserIcon className="w-4 h-4 ml-2" />
-                    لوحة التحكم
-                  </Link>
-                </Button>
-                <Button variant="outline" onClick={handleLogout}>
+                {profile?.role != "user" && (
+                  <Button asChild>
+                    <Link to="/dashboard">
+                      <UserIcon className="w-4 h-4 ml-2" />
+                      لوحة التحكم
+                    </Link>
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  className="hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={handleLogout}
+                >
                   <LogOut className="w-4 h-4 ml-2" />
                   تسجيل الخروج
                 </Button>

@@ -29,7 +29,7 @@ export const deleteCloudinaryImage = async (
   if (!publicId) return false;
 
   try {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const cloudName = import.meta.env.VITE_CLOUDINARY_NAME;
     const apiKey = import.meta.env.VITE_CLOUDINARY_API_KEY;
     const backendEndpoint = import.meta.env.VITE_CLOUDINARY_DELETE_ENDPOINT;
 

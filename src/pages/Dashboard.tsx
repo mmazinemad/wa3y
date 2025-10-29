@@ -59,10 +59,10 @@ const Dashboard = () => {
   >([]);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/login");
+    if ((!authLoading && !user) || profile?.role == "user") {
+      navigate("/");
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, profile]);
 
   useEffect(() => {
     if (profile) {

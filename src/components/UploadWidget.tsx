@@ -50,7 +50,7 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ children, onUpload }) => {
   }, []);
 
   function createWidget() {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const cloudName = import.meta.env.VITE_CLOUDINARY_NAME;
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
